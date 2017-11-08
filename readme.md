@@ -4,6 +4,208 @@
 
 ---
 
+## 20171108 5주차
+
+```
+# [TIP] 프로젝트 빨리 하기
+
+1. 논문 읽기 (scholar.google.com)
+2. source code 찾아서 (github.com) 갖다 쓰기
+3. 데이터 준비하기
+  - 공짜 데이터, 벤치마크에 사용하는 동일한 데이터 찾기
+  - ex. Wallstreet Journal Data, etc.
+```
+
+`CS 224S / LINGUIST 285 Spoken Language Processing`
+`Stanford CS224S Spring 2014`
+
+
++ P(x|s) = P(s|x) P(x) / P(s)
+  + P(x|s) : GMM
+  + P(s|x) : DNN output
+    + input x를 넣었을 때 s가 나올 확률
+    + s : 어떤 state의 phoneme인가
+
+**RNN**.
+
+`rnn_architecture_2017통신.pptx`
+
+$$y_t = f(x_t, y_{t-1}; \theta)$$
+
+output을 input으로 feedback해주면 기억하는 효과가 있다.
+메모리가 있는 것처럼 작동이 된다.
+
+![RNN-stationary](images/RNN-stationary.jpg)
+
+$U$, $V$, $W$가 변하지 않으므로 stationary system이라고 한다.
+비유하면, $x_{t-1}$는 월 소득, $U$는 지출로 인해 변한 금액, $s_{t-1}$는 저축된 금액으로 볼 수 있다.
+state는 저장되는 것인데, $s_{t-1}$이 $W$와 곱해지면 이자 소득으로 $s_t$로 변할 수 있다.
+
+**RNN Language Modeling**.
+
+예를 들어, "c"라는 글자를 LM에 집어 넣으면 다음에 나올 캐릭터 a, e, 등이 나올 확률이 각각 나온다.
+"I like c"를 RNN LM에 집어 넣으면 "cat"이 나올 확률이 높게 나온다.
+"c" 이전에 나온 시퀀스를 다 기억하고 있기 때문이다.
+
+RNN 모델이 장점을 갖는 이유는 어떤 frame만 듣고 "c"냐 "k"냐를 파악하는 것보다 이전 frame을 포함해서 "c"냐 "k"냐를 파악하는 게 더 쉽기 때문이다.
+
+**RNN 형태**.
+
++ 매 step마다 출력($o_{t-k}, \cdots, o_{t-1}, o_t$)이 필요하다 : Language Modeling
++ 마지막 step까지 진행한 후 하나의 출력이 필요하다 : Sentiment Analysis
+
+**RNN activation function**.
+
++ sigmoid function : 0~1이기 때문에 중간값이 0.5이다.
+
++ tanh function : -1~+1이기 때문에 중간값이 0이다. 즉 (`miss`) bias가 없다.
+
++ ReLU function : 양의 값이 feedback 될수록 값이 너무 커지기 때문에 문제가 된다.
+
+> **Note**: CS231N - Lecture 5 - activation function의 장단점 참고하기
+
+![rnn2](images/rnn2.png)
+
+**Before LSTM : Leaky Unit**.
+
+$$h_{cand} = tanh(Ux_t + Wh_{t-1} + b)$$
+
+$$h_t = (1-\alpha)h_{t-1} + \alpha h_{cand}$$
+
++ $\alpha = 1$ : `miss`
++ $\alpha = 0$ : 강력한 상속
+
+**LSTM**.
+
+short-term memory는 3~4 step 전까지는 기억하지만 수십 step 전까지는 기억을 못한다.
+수십 step 전까지 기억하려면 수첩 어딘가에 써두면 된다.
+
+![lstm1](images/lstm1.png)
+
+위 notation을 토대로 LSTM 알고리즘을 도식화하면 아래와 같다.
+
+![lstm2](images/lstm2.png)
+
+**RNN training**.
+
+`RNN training 목요일 실습 때 할 것`
+
+---
+
+(결석 2번)
+
+---
+
+## 20171030 4주차
+
+**HMM 이어서**:
+HMM에서 Hidden인 이유는 사람의 발음이나 필기체가 정확하지 않기 때문에.
+
++ 아이스크림의 개수 : 사람의 발음
+
+음성인식 모델링이란 곧 HMM을 training하는 것.
+
+HMM의 두 요소:
+
++ transition probability :
+  + MM에 의한 state간 transition 확률
++ emission probability :
+  + state에서 output을 emit하는 확률
+  + 음성인식 : 가우시안 분포로 모델링 (여러 사람의 발음을 겹치면 가우시안 믹스쳐 모델 (GMM))
+
+HMM의 emmision probability인 한 사람의 발음 데이터를 가우시안 분포로 모델링한다.
+한 사람이 아니라 여러 사람의 발음 분포를 겹치면 가우시안 믹스쳐 모델(GMM)이 된다.
+음성인식에서 HMM을 만드는 것이 training이다.
+
+음성인식에서 어떤 사람이 '학_에 간다'를 발음했다.
+빈칸에 들어갈 발음의 분포를 보니 '고'에 대한 emission probability가 90%이고, '교'는 5%라고 하자.
+발음만 생각할 때는 '학고에 간다'라고 인식된다.
+그런데 MM에 의해 '학고에'에 대한 확률보다 '학교에'에 대한 확률이 20배 더 높다.
+그래서 '학교에 간다'로 고친다.
+
+posterior.
+의사의 진료.
+아폴로 눈병이 돌고 있다고 한다.
+따라서 눈곱이 낀 환자가 오면 아폴로 눈병일 사전확률이 높은 상태에서 진단을 내릴 수 있다.
+
+**Decoding**:
+어떤 사람의 발음을 듣고 문자로 인식하는 것을 decoding이라 한다.
+
+decoding = 아이스크림 개수의 sequence(5개)를 보고 5일치 날씨를 채워 넣는 것.
+
+
+decoding의 복잡도.
+state 개수가 N개이고, 관찰한 sequence의 길이가 T라면 총 가능한 조합의 수는 $N^T$이 된다.
+계산량이 너무 많으므로 음성인식으로 할 때 이런 방식으로 할 수는 없다.
+계산량을 줄이는 방법에 대해 알아본다.
+
+**Forward 알고리즘**:
+
+오늘(t) 모든 state에서 다음날(t+1)에 어느 state로 갈지 각각 확률을 구한다.
+state 개수가 N개이고, 관찰한 sequence의 길이가 T일 때, $\alpha_t(N_1), \cdots \alpha_t(N_N)$까지를 $T$번 계산하므로 복잡도가 $N^2T$로 줄어든다. `노트 참고`
+
++ $\alpha(t)$ : 오늘
++ $\alpha(t-1)$ : 어제
+
+$$ \alpha_t(j) = \Sigma_{i=1}^{N} \alpha(t-1)(i) \times a_{ij} \times b_j(o_t) $$
+
++ $\alpha(t-1)(i)$ : 어제 state가 i일 때
++ $a_{ij}$: state i에서 state j로 이동할 transition probability
++ $b_j(o_t)$ : 오늘 state가 j일때 emission probability
+
+**Viterbi 알고리즘**:
+
+forward 알고리즘의 변형.
+
+$$ V_t(j) = max_{i=1}^{N} v(t-1)(i) \times a_{ij} \times b_j(o_t) $$
+
+forward 알고리즘으로 계산되는 $\alpha_t(N_1) \cdots \alpha_t(N_N)$ 중에서 가장 큰 값만 남긴다.
+Viterbi 알고리즘은 계산의 복잡도가 줄어든다고 보장할 수는 없고 approximate하는 것이므로 forward 알고리즘을 더 잘 이해할 필요가 있다.
+
+`---`
+
+MM은 현재 state가 같으면 과거 state는 고려하지 않는다.
+decoding은 과거 state를 모두 고려한다.
+
+`p.28하단`
+MFCC로 얻은 10msec 간격의 음성 데이터를 HMM에 넣는다.
+
+`휴식`
+
+$N^T$ 계산이 걸리는 일반 알고리즘과 forward 알고리즘의 차이 `노트 필기`
+
+`p.32`
+bigram.
+
+
+**음성인식기 만들려면 필요한 것**:
+
+1. 각 phoneme에 대한 emission probability
+2. Lexicon - HMM 모델 (ex. five = f → ay → v) - transition probability
+3. Language Model : 다음 단어가 나올 확률 (I'm going to 뒤에 school이 나올 확률)
+
+corpus를 사용해서 1, 2로 HMM을 만든다.
+
+HMM을 만드는 것은 encoding, 오늘 우리가 한 것은 Decoding.
+
+
+**음성인식기 히스토리**:
+
+1. 전통적 방법
+  + Emission : GMM
+  + HMM
+  + Trigram
+2. 현재까지
+  + Emission : DNN
+  + HMM
+  + Trigram (language model)
+3. 현재 이후
+  + 모두 DNN으로 처리
+
+ **끝.**
+
+---
+
 ## 20171025 3주차
 
 `CS224S Dan Jurafsky`
