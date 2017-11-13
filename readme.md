@@ -1,6 +1,42 @@
 
 ⓒ JMC 2017
 
+---
+
+## 20171113 6주차
+
+`성원용_CTC.pptx`
+`Stanford CS224S Spring 2017`
+
+**End to end speech recognition**:
+
+**CTC**:
+
+RNN을 꼭 써야 한다.
+왜냐하면 과거 정보가 필요하기 때문이다.
+
+**Q. RNN training할 때 펼친 다음에 해야 하는 이유?** 과거 input인 $x_n$이 $y_n$뿐만 아니라 $y_{n+1}, y_{n+2}$에도 영향을 끼치기 때문이다.
+즉, 현재 output에 영향을 미치는 과거 input을 모두 고려해서 training해야 한다.
+
+**CTC Loss Function**:
+
+CTC training에서 가르쳐주는 것은.
+
+1초 음성 => 100프레임 (1프레임당 10ms)
+
+$$L_{CTC}(X, W) = \Sigma_{C: \ k(C)=w}p(C|X)$$
+
++ 단어 W = "hi"
++ 프레임개수 T = 3
+
+`ctc speech recognition - https://www.youtube.com/watch?v=g-sndkf7mCs`
+
+```
+CS231n - Visual Recognition (CNN)
+CS224d - Language Model
+CS224s - Speech Process
+```
+
 
 ---
 
